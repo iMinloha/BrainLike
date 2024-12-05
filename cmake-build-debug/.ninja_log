@@ -1,0 +1,6 @@
+# ninja log v5
+0	396	7550873795606503	CMakeFiles/BrainLike.dir/src/library.cpp.obj	2f7537b35c018b8c
+397	1125	7550873798923531	libBrainLike.dll	fe5e713cae73c0a9
+397	1125	7550873798923531	libBrainLike.dll.a	fe5e713cae73c0a9
+2	1638	7550873823523879	Test/CMakeFiles/BrainLike_TEST.dir/TestMain.cpp.obj	77e88221b9b809cc
+1639	2085	7550873827911077	Test/BrainLike_TEST.exe	389d5954a7b51d98
