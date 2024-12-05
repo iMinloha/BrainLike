@@ -9,9 +9,6 @@ set(OpenCV_DIR E:/opencv/build/install/x64/mingw/lib)
 # 查找 OpenCV
 find_package(OpenCV REQUIRED)
 
-# 添加源文件目录
-add_subdirectory(src)
-
 # 添加测试文件目录
 add_subdirectory(Test)
 
@@ -19,29 +16,27 @@ add_subdirectory(Test)
 file(GLOB HEADERS "include/*.h")  # 收集根目录 include 下的所有头文件
 
 # 将项目根目录下的头文件目录添加到编译路径
-include_directories(${CMAKE_SOURCE_DIR} include)
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# 设置代码和头
-SET(S src/library.cpp)
-SET(H include/test.h)
+file(GLOB_RECURSE SOURCE_FILES "src/*.*")
 
-# 添加library文件
-add_library(${PROJECT_NAME} SHARED ${SRC_FILES} ${S} ${H})
+# 创建静态库（.lib）
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
-# 链接 OpenCV库
+# 链接 OpenCV 库
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+
 # 设置导出符号（对于 Windows，使用 __declspec(dllexport)）
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_EXPORTS)
-# 设置导入头文件们
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
 
+# 设置导入头文件
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 # 收集所有头文件
 file(GLOB HEADERS "${CMAKE_SOURCE_DIR}/include/*.h")
 
-# 创建一个合并后的头文件
-set(MERGED_HEADERS_PATH "${CMAKE_BINARY_DIR}/lib${PROJECT_NAME}.h")
-
+# 创建一个合并后的头文件, 保存在构建目录下
+set(MERGED_HEADERS_PATH "${CMAKE_BINARY_DIR}/lib/lib${PROJECT_NAME}.h")
 
 # 自定义命令将所有头文件合并
 add_custom_command(
@@ -51,6 +46,12 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E echo "Finished merging headers."
 )
 
-# 安装动态库和头文件
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)  # 安装动态库到 lib
-install(FILES ${CMAKE_SOURCE_DIR}/library.h DESTINATION include)   # 安装头文件到 include
+# 设置静态库输出目录（.lib）
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
+
+# 安装静态库和合并的头文件
+install(TARGETS ${PROJECT_NAME} DESTINATION lib)  # 安装静态库到 lib
+install(FILES "${CMAKE_BINARY_DIR}/lib${PROJECT_NAME}.h" DESTINATION include)   # 安装合并的头文件到 include
